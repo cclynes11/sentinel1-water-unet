@@ -16,7 +16,7 @@ exist are reused.
   chips   EVENT   download the 256 px chips (optionally one shard), run the U-Net on pre and post
                   (deterministic + MC dropout), score against GT, write a per-shard CSV; raw chips are
                   deleted as soon as they are converted
-  scene   EVENT   run the U-Net on the full pre and post scenes with the original 4224 px tiling, write
+  scene   EVENT   run the U-Net on the full pre and post scenes with the original tiling (64 px crop), write
                   the pixel error map (GeoTIFF + PNG), scene metrics, and the per-tile error map figure
   merge           concatenate the per-shard CSVs into ``analysis/usf_results.csv`` and write summaries
 
@@ -391,6 +391,19 @@ def cmd_chips(args):
     chips = chip_list(args.event, files)[args.shard::args.nshards]
     if args.limit:
         chips = chips[: args.limit]
+    # checkpoint: one small CSV per processed batch; a restarted job skips the chips already done
+    part_dir = out_csv.with_suffix(".partial")
+    if args.overwrite:
+        shutil.rmtree(part_dir, ignore_errors=True)
+    part_dir.mkdir(exist_ok=True)
+    done_ids = set()
+    import pandas as pd
+
+    for f in sorted(part_dir.glob("batch_*.csv")):
+        done_ids.update(pd.read_csv(f, usecols=["tile_id"])["tile_id"])
+    if done_ids:
+        log.info("resuming: %d chips already done", len(done_ids))
+        chips = [c for c in chips if f"{args.event}_ID_{c[1]}_{c[2]}" not in done_ids]
     log.info("%s: %d chips in shard %d/%d (%d empty files on the Hub)", args.event, len(chips), args.shard,
              args.nshards, sum(1 for c in chips if c[3] == 0))
     d = event_dir(args.data, args.event) / f"chips_tmp_{args.shard}"
@@ -429,9 +442,9 @@ def cmd_chips(args):
         meta["chip_equals_scene_crop"] = bool(np.array_equal(img8, scene8))
         return meta, img8, valid
 
-    rows = []
     t0 = time.time()
     bs = args.batch
+    nbatch = len(list(part_dir.glob("batch_*.csv")))
     with ThreadPoolExecutor(args.download_workers) as pool:
         it = pool.map(fetch, chips)
         batch = []
@@ -439,17 +452,20 @@ def cmd_chips(args):
         for item in it:
             batch.append(item)
             if len(batch) == bs or done + len(batch) == len(chips):
-                rows += process_batch(model, batch, gt_src, args)
+                tmp = part_dir / f"batch_{nbatch:05d}.tmp"
+                pd.DataFrame(process_batch(model, batch, gt_src, args)).to_csv(tmp, index=False)
+                tmp.replace(tmp.with_suffix(".csv"))
+                nbatch += 1
                 done += len(batch)
                 batch = []
                 el = time.time() - t0
                 log.info("%s shard %d: %d/%d chips, %.2f s/chip, ETA %.0f min", args.event, args.shard, done,
                          len(chips), el / done, el / done * (len(chips) - done) / 60)
-    import pandas as pd
-
-    df = pd.DataFrame(rows)
+    df = pd.concat([pd.read_csv(f) for f in sorted(part_dir.glob("batch_*.csv"))], ignore_index=True)
+    df = df.sort_values(["tile_row", "tile_col"])
     df.to_csv(out_csv.with_suffix(".tmp"), index=False)
     out_csv.with_suffix(".tmp").replace(out_csv)
+    shutil.rmtree(part_dir, ignore_errors=True)
     shutil.rmtree(d, ignore_errors=True)
     log.info("wrote %s (%d rows) in %.0f min", out_csv, len(df), (time.time() - t0) / 60)
 
@@ -561,21 +577,28 @@ def downsample_codes(e: np.ndarray, f: int) -> np.ndarray:
     return out
 
 
-def predict_full(model, img2: np.ndarray, device: str, dtype: str) -> np.ndarray:
-    from s1water.predict import predict_image
+def predict_full(model, img2: np.ndarray, device: str, dtype: str, tile: int = 4224) -> np.ndarray:
+    """Full-image prediction with the original tiling scheme (64 px crop). tile = 4224 is the original;
+    a smaller tile keeps the same 64 px context margin and fits in less memory (fp32 4224 px needs ~15 GB)."""
+    from s1water.predict import CROP, predict_image
 
+    kw = dict(return_probability=True, progress=False, tile=tile, step=tile - 2 * CROP, crop=CROP)
     if dtype != "float32":
         import torch
 
         with torch.autocast(device_type="cpu" if device == "cpu" else "cuda", dtype=getattr(torch, dtype)):
-            return predict_image(model, img2, device, return_probability=True, progress=False)
-    return predict_image(model, img2, device, return_probability=True, progress=False)
+            return predict_image(model, img2, device, **kw)
+    return predict_image(model, img2, device, **kw)
 
 
 def cmd_scene(args):
     import rasterio
 
     setup_torch(args.threads)
+    if args.device == "cpu" and args.dtype != "float32" and args.tile > 2176:
+        # oneDNN fails with "could not create a primitive" for bfloat16 convolutions on 4224 px tiles
+        log.warning("%s autocast is not supported on CPU for 4224 px tiles: using float32", args.dtype)
+        args.dtype = "float32"
     p = scene_paths(args.data, args.event)
     d = event_dir(args.data, args.event)
     prob_path = {k: d / f"{args.event}_prob_{k}.tif" for k in ("pre", "post")}
@@ -592,7 +615,7 @@ def cmd_scene(args):
         model = model or load_unet(args.device)
         set_mc_dropout(model, False)
         t = time.time()
-        probs[k] = predict_full(model, np.ascontiguousarray(img[bands]), args.device, args.dtype)
+        probs[k] = predict_full(model, np.ascontiguousarray(img[bands]), args.device, args.dtype, args.tile)
         log.info("%s %s: full scene predicted in %.1f min", args.event, k, (time.time() - t) / 60)
         pp = dict(prof, count=1, dtype="float32", nodata=np.nan, predictor=3)
         with rasterio.open(prob_path[k], "w", **pp) as o:
@@ -608,7 +631,7 @@ def cmd_scene(args):
     w_post = probs["post"] >= THRESHOLD
     del probs
     preds = {"flood": w_post & ~w_pre, "post": w_post}
-    rec = {"event": args.event, "n_valid": int(valid.sum())}
+    rec = {"event": args.event, "n_valid": int(valid.sum()), "tile": args.tile, "dtype": args.dtype}
     for pname, pred in preds.items():
         for cls, cname in GT_CLASSES.items():
             tp, fp, fn, tn = confusion(pred, gt, valid, cls)
@@ -618,10 +641,10 @@ def cmd_scene(args):
     (ROOT / "scene_metrics" / f"{args.event}.json").write_text(json.dumps(rec, indent=1))
     for pname, pred in preds.items():
         e = error_map(pred, gt, valid)
-        ep = dict(prof, count=1, dtype="uint8", nodata=0)
+        ep = dict(prof, count=1, dtype="uint8", nodata=0, photometric="palette")
         with rasterio.open(d / f"{args.event}_error_{pname}.tif", "w", **ep) as o:
+            o.write_colormap(1, {c: (*rgb, 255) for c, (_, rgb) in ERR_CODES.items()})  # before the data
             o.write(e, 1)
-            o.write_colormap(1, {c: (*rgb, 255) for c, (_, rgb) in ERR_CODES.items()})
             o.update_tags(codes=json.dumps({c: n for c, (n, _) in ERR_CODES.items()}))
         f = max(1, int(math.ceil(max(e.shape) / 2400)))
         small = downsample_codes(e, f)
@@ -717,6 +740,21 @@ def cmd_merge(args):
                 summ.append({"event": ev, "prediction": pname, "class": cname, "tp": tp, "fp": fp, "fn": fn, **s})
                 lines.append(f"| {ev} | {pname} | {cname} | {len(g)} | {tp} | {fp} | {fn} | {s['precision']:.3f} | "
                              f"{s['recall']:.3f} | {s['f1']:.3f} | {s['iou']:.3f} |")
+    scene_files = sorted((ROOT / "scene_metrics").glob("*.json"))
+    if scene_files:
+        sl = ["| event | prediction | class | TP | FP | FN | precision | recall | F1 | IoU |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
+        for f in scene_files:
+            rec = json.loads(f.read_text())
+            for pname in ("flood", "post"):
+                for cname in GT_CLASSES.values():
+                    k = f"{pname}_{cname}_"
+                    sl.append(f"| {rec['event']} | {pname} | {cname} | {rec[k + 'tp']} | {rec[k + 'fp']} | "
+                              f"{rec[k + 'fn']} | {rec[k + 'precision']:.3f} | {rec[k + 'recall']:.3f} | "
+                              f"{rec[k + 'f1']:.3f} | {rec[k + 'iou']:.3f} |")
+        (ROOT / "usf_summary_scenes.md").write_text(
+            "Pixel scores of the full-scene prediction (tiling with 64 px crop; tile size in the JSON), from "
+            "`scene_metrics/*.json`.\n\n" + "\n".join(sl) + "\n")
     pd.DataFrame(summ).to_csv(ROOT / "usf_summary_chips.csv", index=False, float_format="%.6g")
     (ROOT / "usf_summary_chips.md").write_text(
         "Pixel-pooled (micro) scores over all 256 px chips, from `usf_results.csv`.\n\n" + "\n".join(lines) + "\n")
@@ -754,6 +792,8 @@ def main(argv=None):
     s = sub.add_parser("scene")
     s.add_argument("event", choices=EVENTS)
     s.add_argument("--dtype", default="float32", choices=["float32", "bfloat16", "float16"])
+    s.add_argument("--tile", type=int, default=4224,
+                   help="tile size (step = tile - 128, 64 px crop). 4224 = original; needs ~15 GB in float32 on CPU")
     dl = sub.add_parser("download")
     dl.add_argument("event", choices=EVENTS)
     dl.add_argument("--no-chips", action="store_true")

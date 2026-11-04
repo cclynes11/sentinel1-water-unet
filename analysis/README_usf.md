@@ -19,7 +19,7 @@ events (Hugging Face `S1Floodbenchmark/UrbanSARFloods_v1`, revision `0892ffa`):
 | `preprocessing_shift.md` | every known difference from the model's training inputs |
 | `usf_results.csv` | one row per 256 px chip (columns below) |
 | `usf_summary_chips.md/.csv` | pixel-pooled scores per event and overall, from the chips |
-| `scene_metrics/*.json` | pixel scores of the full-scene prediction (original 4224 px tiling) |
+| `scene_metrics/*.json`, `usf_summary_scenes.md` | pixel scores of the full-scene prediction (tiling with 64 px crop; tile size and dtype recorded in the JSON) |
 | `figures/error_map_<event>.png` | per-scene error map: pixel errors of the full-scene prediction, per-tile error rate and per-tile MC variance |
 | `results_parts/` | per-shard CSVs (merged into `usf_results.csv`) |
 | `slurm/` | Slurm job scripts for an HPC run |
@@ -64,6 +64,7 @@ python analysis/usf_eval.py merge
 | RAM | ≤ 6 GB (full-scene inference of Nova Kakhovka, 22596 × 12226 px) | yes |
 | compute, float32 | ~7 s per chip on 4 cores (2 images × 21 forward passes of a 34.6 M-parameter U-Net at ~0.2 s per 256 px image), **~18 h for the 9176 chips**, + ~2 h for the 4 × 2 full scenes | **too large** for this machine |
 | compute, as run here | float32 deterministic pass, **bfloat16 autocast for the MC passes and the full scenes** (3.6× faster; mean abs. probability difference 6 × 10⁻⁴, ~9× below the MC spread): ~3-4 s per chip, **~9 h in total** | ran, see the PR description |
+| full-scene tile, float32, 4224 px | ~15 GB of activations per tile on CPU | **no** (OOM next to the chip job). Run here with `--tile 2176` (same 64 px crop), bfloat16; the Slurm job keeps 4224 px with 32 GB |
 
 So the full float32 run is meant for a **Slurm HPC**: `analysis/slurm/submit_usf.sh` submits, per event,
 `prepare` → a `chips` job array (200 chips per task, 8 CPUs, 16 GB) → `scene`, then one `merge`.

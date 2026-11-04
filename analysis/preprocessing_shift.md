@@ -69,7 +69,7 @@ Consequences:
 |---|---|---|
 | Training patches | 256 × 256 | - |
 | Inference, chips | original: 4224 px tiles, 64 px cropped on each side (no border effect) | **each 256 px chip on its own, no crop**: predictions within ~32-64 px of a chip edge lack context. The chips are what `usf_results.csv` scores |
-| Inference, full scenes | 4224 / 4096 / 64 tiling | **same tiling** (`s1water.predict.predict_image`). Used for the error maps and `scene_metrics/`. The first 64 rows/cols are unpredicted, as in the original workflow, and excluded |
+| Inference, full scenes | 4224 px tiles every 4096 px, 64 px crop | same scheme with **2176 px tiles every 2048 px** (same 64 px crop and context margin) because a 4224 px tile needs ~15 GB in float32 on CPU and bfloat16 fails for that size in oneDNN. Used for the error maps and `scene_metrics/`. The first 64 rows/cols are unpredicted and excluded, as in the original workflow. The Slurm script keeps 4224 px in float32 |
 
 ## 5. Scene content, sensor and acquisition
 
