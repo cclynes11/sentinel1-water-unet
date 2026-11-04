@@ -1,0 +1,38 @@
+# Citation verification log
+
+Checked on 2026-11-04 against arXiv, publisher pages, CVF Open Access, MLAnthology and author repositories.
+Status key: ✅ verified (title, authors, venue and year found at a primary or indexed source) ·
+⚠️ verified with a caveat · ❌ not found / ambiguous: **do not cite until resolved**.
+
+| # | Short name | Full reference (as verified) | Identifier | Status | Notes |
+|---|---|---|---|---|---|
+| 1 | Nemni 2020 | Nemni, E., Bullock, J., Belabbes, S., Bromley, L. (2020). *Fully Convolutional Neural Network for Rapid Flood Segmentation in Synthetic Aperture Radar Imagery.* Remote Sensing 12(16), 2532. | [doi:10.3390/rs12162532](https://doi.org/10.3390/rs12162532) | ✅ | Code and models: [UNITAR-UNOSAT/UNOSAT-AI-Based-Rapid-Mapping-Service](https://github.com/UNITAR-UNOSAT/UNOSAT-AI-Based-Rapid-Mapping-Service) |
+| 2 | Portalés-Julià 2025 | Portalés-Julià, E., Mateo-García, G., Gómez-Chova, L. (2025). *Understanding flood detection models across Sentinel-1 and Sentinel-2 modalities and benchmark datasets.* Remote Sensing of Environment 328, 114882. | [doi:10.1016/j.rse.2025.114882](https://doi.org/10.1016/j.rse.2025.114882) | ⚠️ | Citation confirmed through the authors' model card ([isp-uv-es/udl4fl_models](https://huggingface.co/isp-uv-es/udl4fl_models)) and an index entry. I could not read the abstract or full text, so the findings in the matrix come only from the model card. Read the paper before quoting results. |
+| 3 | Thasma 2026 | Thasma, S., Ho, Y.-H., Mostafavi, A. (2026). *Beyond Backscatter: AlphaEarth Land-Cover Priors for Rapid SAR Flood Segmentation Across Foundation Backbones.* arXiv preprint. | [arXiv:2606.29134](https://arxiv.org/abs/2606.29134) | ⚠️ | Preprint only. No peer-reviewed venue found as of Nov 2026, so cite it as arXiv. |
+| 4 | Kolluru 2026 | Kolluru, V., Shinde, R., Marouane, A., Helbling, C., Shah, D., Drew, O., Gurung, I., Maskey, M., Ramachandran, R. (2026). *Land cover and flood type govern the detection limits of satellite-based flood mapping across diverse global flood events.* arXiv preprint. | [arXiv:2606.07780](https://arxiv.org/abs/2606.07780) | ⚠️ | Preprint only. The abstract does not name the input sensor (the model is Prithvi-EO-2.0). Check whether it uses SAR or optical input before calling it a "SAR" result. |
+| 5 | Meyer & Pebesma 2021 | Meyer, H., Pebesma, E. (2021). *Predicting into unknown space? Estimating the area of applicability of spatial prediction models.* Methods in Ecology and Evolution 12(9), 1620–1633. | [doi:10.1111/2041-210X.13650](https://doi.org/10.1111/2041-210X.13650), [arXiv:2005.07939](https://arxiv.org/abs/2005.07939) | ✅ | |
+| 6 | Le Bellier & Audebert 2024 | Le Bellier, G., Audebert, N. (2024). *Detecting Out-Of-Distribution Earth Observation Images with Diffusion Models.* CVPR 2024 Workshops (EarthVision). | [arXiv:2404.12667](https://arxiv.org/abs/2404.12667) | ✅ | Year is not in the brief. 2024 is the only matching paper by this author pair. |
+| 7 | Hendrycks & Gimpel 2017 | Hendrycks, D., Gimpel, K. (2017). *A Baseline for Detecting Misclassified and Out-of-Distribution Examples in Neural Networks.* ICLR 2017. | [arXiv:1610.02136](https://arxiv.org/abs/1610.02136) | ✅ | |
+| 8 | Sun et al. (OOD) | **Primary:** Sun, Y., Ming, Y., Zhu, X., Li, Y. (2022). *Out-of-Distribution Detection with Deep Nearest Neighbors.* ICML 2022. **Alternative:** Sun, Y., Guo, C., Li, Y. (2021). *ReAct: Out-of-distribution Detection With Rectified Activations.* NeurIPS 2021. | [arXiv:2204.06507](https://arxiv.org/abs/2204.06507); [ReAct (NeurIPS)](https://papers.nips.cc/paper/2021/hash/01894d6f048493d2cacde3c579c315a3-Abstract.html) | ⚠️ | **Ambiguous.** Both papers exist and both are "Sun et al. OOD". The matrix uses the kNN paper (ICML 2022) because feature-space distance is closest to the AOA dissimilarity index. Confirm which one you meant. |
+| 9 | Ovadia 2019 | Ovadia, Y., Fertig, E., Ren, J., Nado, Z., Sculley, D., Nowozin, S., Dillon, J. V., Lakshminarayanan, B., Snoek, J. (2019). *Can You Trust Your Model's Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.* NeurIPS 2019. | [arXiv:1906.02530](https://arxiv.org/abs/1906.02530) | ✅ | |
+| 10 | Guérin 2023 | Guérin, J., Delmas, K., Ferreira, R. S., Guiochet, J. (2023). *Out-of-Distribution Detection Is Not All You Need.* AAAI 2023, pp. 14829–14837. | [arXiv:2211.16158](https://arxiv.org/abs/2211.16158) | ✅ | An earlier version appeared at a NeurIPS 2022 workshop. Cite the AAAI version. |
+| 11 | de Jorge 2023 | de Jorge, P., Volpi, R., Torr, P., Rogez, G. (2023). *Reliability in Semantic Segmentation: Are We on the Right Track?* CVPR 2023. | [arXiv:2303.11298](https://arxiv.org/abs/2303.11298) | ✅ | Code: [naver/relis](https://github.com/naver/relis) |
+| 12 | Zimmermann | — | — | ❌ | **Not found.** Several searches found no paper by a first author Zimmermann on OOD, uncertainty, performance prediction, SAR or flood mapping, or segmentation under shift. The nearest paper on predicting out-of-domain performance under geographic shift is Zhang, Klemmer, Rolf, Alvarez-Melis (ICLR 2025 workshop, [CCAI page](https://www.climatechange.ai/papers/iclr2025/20)), which is a different author. Get the title, year or DOI from your supervisor or reading list. The paper is left out of the matrix until then. |
+| 13 | WILDS (Koh 2021) | Koh, P. W., Sagawa, S., et al. (2021). *WILDS: A Benchmark of in-the-Wild Distribution Shifts.* ICML 2021. | [arXiv:2012.07421](https://arxiv.org/abs/2012.07421) | ✅ | |
+| 14 | Wagner 2024 | Wagner, F. H., et al. (2024). *The Amazon's 2023 Drought: Sentinel-1 Reveals Extreme Rio Negro River Contraction.* Remote Sensing 16(6), 1056. | [doi:10.3390/rs16061056](https://doi.org/10.3390/rs16061056), [arXiv:2401.16393](https://arxiv.org/abs/2401.16393) | ✅ | This is the model released in this repo (see `README.md`). |
+| 15 | Zhao 2024 (UrbanSARFloods) | Zhao, J., Xiong, Z., Zhu, X. X. (2024). *UrbanSARFloods: Sentinel-1 SLC-Based Benchmark Dataset for Urban and Open-Area Flood Mapping.* CVPR 2024 Workshops (EarthVision), pp. 419–429. | [doi:10.1109/CVPRW63382.2024.00047](https://doi.org/10.1109/CVPRW63382.2024.00047), [arXiv:2406.04111](https://arxiv.org/abs/2406.04111) | ✅ | |
+
+## Extra references used only in the dataset table
+
+| Reference | Identifier | Status |
+|---|---|---|
+| Bonafilia, D., Tellman, B., Anderson, T., Issenberg, E. (2020). *Sen1Floods11: A Georeferenced Dataset to Train and Test Deep Learning Flood Algorithms for Sentinel-1.* CVPR 2020 Workshops, pp. 210–211. | [doi:10.1109/CVPRW50498.2020.00113](https://doi.org/10.1109/CVPRW50498.2020.00113) | ✅ |
+| Bountos, N. I., et al. (2024). *Kuro Siwo: 33 billion m² under the water. A global multi-temporal satellite dataset for rapid flood mapping.* NeurIPS 2024 Datasets & Benchmarks. | [arXiv:2311.12056](https://arxiv.org/abs/2311.12056) | ✅ (NeurIPS **2024**, not 2023) |
+| Wieland, M., et al. (2023). *S1S2-Water: A global dataset for semantic segmentation of water bodies from Sentinel-1 and Sentinel-2 satellite images.* IEEE JSTARS. | [IEEE 10321672](https://ieeexplore.ieee.org/document/10321672/) | ✅ |
+
+## Action items before submission
+- [ ] Resolve **Zimmermann** (12): get the exact title, or drop it.
+- [ ] Pick which **Sun et al.** (8) to cite: kNN (ICML 2022) or ReAct (NeurIPS 2021). Citing both is also fine.
+- [ ] Read the **Portalés-Julià 2025** full text (2) and replace the placeholder "key finding" in the matrix.
+- [ ] Check which sensor **Kolluru 2026** (4) uses before calling it SAR evidence.
+- [ ] Re-check both arXiv preprints (3, 4) for a published version shortly before 26 Nov.
