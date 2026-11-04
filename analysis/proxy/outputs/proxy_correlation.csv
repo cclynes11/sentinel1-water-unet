@@ -1,0 +1,301 @@
+panel,proxy_1,proxy_2,spearman
+"Pooled (a, b and test, 575 tiles each)",slope_mean,slope_mean,1.0
+"Pooled (a, b and test, 575 tiles each)",slope_mean,slope_p90,0.993
+"Pooled (a, b and test, 575 tiles each)",slope_mean,elev_range,0.869
+"Pooled (a, b and test, 575 tiles each)",slope_mean,hand_median,0.773
+"Pooled (a, b and test, 575 tiles each)",slope_mean,hand_lt5_frac,-0.932
+"Pooled (a, b and test, 575 tiles each)",slope_mean,veg_frac,-0.26
+"Pooled (a, b and test, 575 tiles each)",slope_mean,tree_frac,0.799
+"Pooled (a, b and test, 575 tiles each)",slope_mean,built_frac,0.102
+"Pooled (a, b and test, 575 tiles each)",slope_mean,bldg_height,-0.204
+"Pooled (a, b and test, 575 tiles each)",slope_mean,ob_bldg_frac,0.247
+"Pooled (a, b and test, 575 tiles each)",slope_p90,slope_mean,0.993
+"Pooled (a, b and test, 575 tiles each)",slope_p90,slope_p90,1.0
+"Pooled (a, b and test, 575 tiles each)",slope_p90,elev_range,0.851
+"Pooled (a, b and test, 575 tiles each)",slope_p90,hand_median,0.73
+"Pooled (a, b and test, 575 tiles each)",slope_p90,hand_lt5_frac,-0.915
+"Pooled (a, b and test, 575 tiles each)",slope_p90,veg_frac,-0.297
+"Pooled (a, b and test, 575 tiles each)",slope_p90,tree_frac,0.789
+"Pooled (a, b and test, 575 tiles each)",slope_p90,built_frac,0.109
+"Pooled (a, b and test, 575 tiles each)",slope_p90,bldg_height,-0.183
+"Pooled (a, b and test, 575 tiles each)",slope_p90,ob_bldg_frac,0.25
+"Pooled (a, b and test, 575 tiles each)",elev_range,slope_mean,0.869
+"Pooled (a, b and test, 575 tiles each)",elev_range,slope_p90,0.851
+"Pooled (a, b and test, 575 tiles each)",elev_range,elev_range,1.0
+"Pooled (a, b and test, 575 tiles each)",elev_range,hand_median,0.867
+"Pooled (a, b and test, 575 tiles each)",elev_range,hand_lt5_frac,-0.944
+"Pooled (a, b and test, 575 tiles each)",elev_range,veg_frac,-0.072
+"Pooled (a, b and test, 575 tiles each)",elev_range,tree_frac,0.587
+"Pooled (a, b and test, 575 tiles each)",elev_range,built_frac,0.015
+"Pooled (a, b and test, 575 tiles each)",elev_range,bldg_height,-0.287
+"Pooled (a, b and test, 575 tiles each)",elev_range,ob_bldg_frac,0.291
+"Pooled (a, b and test, 575 tiles each)",hand_median,slope_mean,0.773
+"Pooled (a, b and test, 575 tiles each)",hand_median,slope_p90,0.73
+"Pooled (a, b and test, 575 tiles each)",hand_median,elev_range,0.867
+"Pooled (a, b and test, 575 tiles each)",hand_median,hand_median,1.0
+"Pooled (a, b and test, 575 tiles each)",hand_median,hand_lt5_frac,-0.866
+"Pooled (a, b and test, 575 tiles each)",hand_median,veg_frac,0.118
+"Pooled (a, b and test, 575 tiles each)",hand_median,tree_frac,0.504
+"Pooled (a, b and test, 575 tiles each)",hand_median,built_frac,-0.005
+"Pooled (a, b and test, 575 tiles each)",hand_median,bldg_height,-0.325
+"Pooled (a, b and test, 575 tiles each)",hand_median,ob_bldg_frac,0.25
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,slope_mean,-0.932
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,slope_p90,-0.915
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,elev_range,-0.944
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,hand_median,-0.866
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,hand_lt5_frac,1.0
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,veg_frac,0.143
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,tree_frac,-0.684
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,built_frac,-0.076
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,bldg_height,0.306
+"Pooled (a, b and test, 575 tiles each)",hand_lt5_frac,ob_bldg_frac,-0.334
+"Pooled (a, b and test, 575 tiles each)",veg_frac,slope_mean,-0.26
+"Pooled (a, b and test, 575 tiles each)",veg_frac,slope_p90,-0.297
+"Pooled (a, b and test, 575 tiles each)",veg_frac,elev_range,-0.072
+"Pooled (a, b and test, 575 tiles each)",veg_frac,hand_median,0.118
+"Pooled (a, b and test, 575 tiles each)",veg_frac,hand_lt5_frac,0.143
+"Pooled (a, b and test, 575 tiles each)",veg_frac,veg_frac,1.0
+"Pooled (a, b and test, 575 tiles each)",veg_frac,tree_frac,-0.28
+"Pooled (a, b and test, 575 tiles each)",veg_frac,built_frac,-0.37
+"Pooled (a, b and test, 575 tiles each)",veg_frac,bldg_height,-0.731
+"Pooled (a, b and test, 575 tiles each)",veg_frac,ob_bldg_frac,-0.251
+"Pooled (a, b and test, 575 tiles each)",tree_frac,slope_mean,0.799
+"Pooled (a, b and test, 575 tiles each)",tree_frac,slope_p90,0.789
+"Pooled (a, b and test, 575 tiles each)",tree_frac,elev_range,0.587
+"Pooled (a, b and test, 575 tiles each)",tree_frac,hand_median,0.504
+"Pooled (a, b and test, 575 tiles each)",tree_frac,hand_lt5_frac,-0.684
+"Pooled (a, b and test, 575 tiles each)",tree_frac,veg_frac,-0.28
+"Pooled (a, b and test, 575 tiles each)",tree_frac,tree_frac,1.0
+"Pooled (a, b and test, 575 tiles each)",tree_frac,built_frac,-0.03
+"Pooled (a, b and test, 575 tiles each)",tree_frac,bldg_height,-0.302
+"Pooled (a, b and test, 575 tiles each)",tree_frac,ob_bldg_frac,0.066
+"Pooled (a, b and test, 575 tiles each)",built_frac,slope_mean,0.102
+"Pooled (a, b and test, 575 tiles each)",built_frac,slope_p90,0.109
+"Pooled (a, b and test, 575 tiles each)",built_frac,elev_range,0.015
+"Pooled (a, b and test, 575 tiles each)",built_frac,hand_median,-0.005
+"Pooled (a, b and test, 575 tiles each)",built_frac,hand_lt5_frac,-0.076
+"Pooled (a, b and test, 575 tiles each)",built_frac,veg_frac,-0.37
+"Pooled (a, b and test, 575 tiles each)",built_frac,tree_frac,-0.03
+"Pooled (a, b and test, 575 tiles each)",built_frac,built_frac,1.0
+"Pooled (a, b and test, 575 tiles each)",built_frac,bldg_height,0.86
+"Pooled (a, b and test, 575 tiles each)",built_frac,ob_bldg_frac,0.811
+"Pooled (a, b and test, 575 tiles each)",bldg_height,slope_mean,-0.204
+"Pooled (a, b and test, 575 tiles each)",bldg_height,slope_p90,-0.183
+"Pooled (a, b and test, 575 tiles each)",bldg_height,elev_range,-0.287
+"Pooled (a, b and test, 575 tiles each)",bldg_height,hand_median,-0.325
+"Pooled (a, b and test, 575 tiles each)",bldg_height,hand_lt5_frac,0.306
+"Pooled (a, b and test, 575 tiles each)",bldg_height,veg_frac,-0.731
+"Pooled (a, b and test, 575 tiles each)",bldg_height,tree_frac,-0.302
+"Pooled (a, b and test, 575 tiles each)",bldg_height,built_frac,0.86
+"Pooled (a, b and test, 575 tiles each)",bldg_height,bldg_height,1.0
+"Pooled (a, b and test, 575 tiles each)",bldg_height,ob_bldg_frac,0.614
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,slope_mean,0.247
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,slope_p90,0.25
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,elev_range,0.291
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,hand_median,0.25
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,hand_lt5_frac,-0.334
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,veg_frac,-0.251
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,tree_frac,0.066
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,built_frac,0.811
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,bldg_height,0.614
+"Pooled (a, b and test, 575 tiles each)",ob_bldg_frac,ob_bldg_frac,1.0
+(a) Amazon,slope_mean,slope_mean,1.0
+(a) Amazon,slope_mean,slope_p90,0.961
+(a) Amazon,slope_mean,elev_range,0.739
+(a) Amazon,slope_mean,hand_median,0.754
+(a) Amazon,slope_mean,hand_lt5_frac,-0.809
+(a) Amazon,slope_mean,veg_frac,0.133
+(a) Amazon,slope_mean,tree_frac,0.429
+(a) Amazon,slope_mean,built_frac,0.022
+(a) Amazon,slope_mean,bldg_height,-0.133
+(a) Amazon,slope_mean,ob_bldg_frac,-0.01
+(a) Amazon,slope_p90,slope_mean,0.961
+(a) Amazon,slope_p90,slope_p90,1.0
+(a) Amazon,slope_p90,elev_range,0.703
+(a) Amazon,slope_p90,hand_median,0.664
+(a) Amazon,slope_p90,hand_lt5_frac,-0.777
+(a) Amazon,slope_p90,veg_frac,-0.015
+(a) Amazon,slope_p90,tree_frac,0.314
+(a) Amazon,slope_p90,built_frac,0.049
+(a) Amazon,slope_p90,bldg_height,-0.148
+(a) Amazon,slope_p90,ob_bldg_frac,0.017
+(a) Amazon,elev_range,slope_mean,0.739
+(a) Amazon,elev_range,slope_p90,0.703
+(a) Amazon,elev_range,elev_range,1.0
+(a) Amazon,elev_range,hand_median,0.8
+(a) Amazon,elev_range,hand_lt5_frac,-0.861
+(a) Amazon,elev_range,veg_frac,0.134
+(a) Amazon,elev_range,tree_frac,0.163
+(a) Amazon,elev_range,built_frac,0.16
+(a) Amazon,elev_range,bldg_height,0.101
+(a) Amazon,elev_range,ob_bldg_frac,0.134
+(a) Amazon,hand_median,slope_mean,0.754
+(a) Amazon,hand_median,slope_p90,0.664
+(a) Amazon,hand_median,elev_range,0.8
+(a) Amazon,hand_median,hand_median,1.0
+(a) Amazon,hand_median,hand_lt5_frac,-0.93
+(a) Amazon,hand_median,veg_frac,0.323
+(a) Amazon,hand_median,tree_frac,0.271
+(a) Amazon,hand_median,built_frac,0.168
+(a) Amazon,hand_median,bldg_height,0.046
+(a) Amazon,hand_median,ob_bldg_frac,0.128
+(a) Amazon,hand_lt5_frac,slope_mean,-0.809
+(a) Amazon,hand_lt5_frac,slope_p90,-0.777
+(a) Amazon,hand_lt5_frac,elev_range,-0.861
+(a) Amazon,hand_lt5_frac,hand_median,-0.93
+(a) Amazon,hand_lt5_frac,hand_lt5_frac,1.0
+(a) Amazon,hand_lt5_frac,veg_frac,-0.158
+(a) Amazon,hand_lt5_frac,tree_frac,-0.173
+(a) Amazon,hand_lt5_frac,built_frac,-0.215
+(a) Amazon,hand_lt5_frac,bldg_height,-0.02
+(a) Amazon,hand_lt5_frac,ob_bldg_frac,-0.17
+(a) Amazon,veg_frac,slope_mean,0.133
+(a) Amazon,veg_frac,slope_p90,-0.015
+(a) Amazon,veg_frac,elev_range,0.134
+(a) Amazon,veg_frac,hand_median,0.323
+(a) Amazon,veg_frac,hand_lt5_frac,-0.158
+(a) Amazon,veg_frac,veg_frac,1.0
+(a) Amazon,veg_frac,tree_frac,0.405
+(a) Amazon,veg_frac,built_frac,-0.101
+(a) Amazon,veg_frac,bldg_height,-0.443
+(a) Amazon,veg_frac,ob_bldg_frac,-0.122
+(a) Amazon,tree_frac,slope_mean,0.429
+(a) Amazon,tree_frac,slope_p90,0.314
+(a) Amazon,tree_frac,elev_range,0.163
+(a) Amazon,tree_frac,hand_median,0.271
+(a) Amazon,tree_frac,hand_lt5_frac,-0.173
+(a) Amazon,tree_frac,veg_frac,0.405
+(a) Amazon,tree_frac,tree_frac,1.0
+(a) Amazon,tree_frac,built_frac,-0.384
+(a) Amazon,tree_frac,bldg_height,-0.202
+(a) Amazon,tree_frac,ob_bldg_frac,-0.397
+(a) Amazon,built_frac,slope_mean,0.022
+(a) Amazon,built_frac,slope_p90,0.049
+(a) Amazon,built_frac,elev_range,0.16
+(a) Amazon,built_frac,hand_median,0.168
+(a) Amazon,built_frac,hand_lt5_frac,-0.215
+(a) Amazon,built_frac,veg_frac,-0.101
+(a) Amazon,built_frac,tree_frac,-0.384
+(a) Amazon,built_frac,built_frac,1.0
+(a) Amazon,built_frac,bldg_height,0.804
+(a) Amazon,built_frac,ob_bldg_frac,0.809
+(a) Amazon,bldg_height,slope_mean,-0.133
+(a) Amazon,bldg_height,slope_p90,-0.148
+(a) Amazon,bldg_height,elev_range,0.101
+(a) Amazon,bldg_height,hand_median,0.046
+(a) Amazon,bldg_height,hand_lt5_frac,-0.02
+(a) Amazon,bldg_height,veg_frac,-0.443
+(a) Amazon,bldg_height,tree_frac,-0.202
+(a) Amazon,bldg_height,built_frac,0.804
+(a) Amazon,bldg_height,bldg_height,1.0
+(a) Amazon,bldg_height,ob_bldg_frac,0.797
+(a) Amazon,ob_bldg_frac,slope_mean,-0.01
+(a) Amazon,ob_bldg_frac,slope_p90,0.017
+(a) Amazon,ob_bldg_frac,elev_range,0.134
+(a) Amazon,ob_bldg_frac,hand_median,0.128
+(a) Amazon,ob_bldg_frac,hand_lt5_frac,-0.17
+(a) Amazon,ob_bldg_frac,veg_frac,-0.122
+(a) Amazon,ob_bldg_frac,tree_frac,-0.397
+(a) Amazon,ob_bldg_frac,built_frac,0.809
+(a) Amazon,ob_bldg_frac,bldg_height,0.797
+(a) Amazon,ob_bldg_frac,ob_bldg_frac,1.0
+(b) UrbanSARFloods training,slope_mean,slope_mean,1.0
+(b) UrbanSARFloods training,slope_mean,slope_p90,0.993
+(b) UrbanSARFloods training,slope_mean,elev_range,0.883
+(b) UrbanSARFloods training,slope_mean,hand_median,0.887
+(b) UrbanSARFloods training,slope_mean,hand_lt5_frac,-0.945
+(b) UrbanSARFloods training,slope_mean,veg_frac,0.183
+(b) UrbanSARFloods training,slope_mean,tree_frac,0.753
+(b) UrbanSARFloods training,slope_mean,built_frac,-0.002
+(b) UrbanSARFloods training,slope_mean,bldg_height,-0.249
+(b) UrbanSARFloods training,slope_mean,ob_bldg_frac,0.492
+(b) UrbanSARFloods training,slope_p90,slope_mean,0.993
+(b) UrbanSARFloods training,slope_p90,slope_p90,1.0
+(b) UrbanSARFloods training,slope_p90,elev_range,0.863
+(b) UrbanSARFloods training,slope_p90,hand_median,0.85
+(b) UrbanSARFloods training,slope_p90,hand_lt5_frac,-0.92
+(b) UrbanSARFloods training,slope_p90,veg_frac,0.147
+(b) UrbanSARFloods training,slope_p90,tree_frac,0.742
+(b) UrbanSARFloods training,slope_p90,built_frac,0.025
+(b) UrbanSARFloods training,slope_p90,bldg_height,-0.227
+(b) UrbanSARFloods training,slope_p90,ob_bldg_frac,0.495
+(b) UrbanSARFloods training,elev_range,slope_mean,0.883
+(b) UrbanSARFloods training,elev_range,slope_p90,0.863
+(b) UrbanSARFloods training,elev_range,elev_range,1.0
+(b) UrbanSARFloods training,elev_range,hand_median,0.944
+(b) UrbanSARFloods training,elev_range,hand_lt5_frac,-0.944
+(b) UrbanSARFloods training,elev_range,veg_frac,0.376
+(b) UrbanSARFloods training,elev_range,tree_frac,0.555
+(b) UrbanSARFloods training,elev_range,built_frac,-0.256
+(b) UrbanSARFloods training,elev_range,bldg_height,-0.312
+(b) UrbanSARFloods training,elev_range,ob_bldg_frac,0.306
+(b) UrbanSARFloods training,hand_median,slope_mean,0.887
+(b) UrbanSARFloods training,hand_median,slope_p90,0.85
+(b) UrbanSARFloods training,hand_median,elev_range,0.944
+(b) UrbanSARFloods training,hand_median,hand_median,1.0
+(b) UrbanSARFloods training,hand_median,hand_lt5_frac,-0.957
+(b) UrbanSARFloods training,hand_median,veg_frac,0.409
+(b) UrbanSARFloods training,hand_median,tree_frac,0.6
+(b) UrbanSARFloods training,hand_median,built_frac,-0.265
+(b) UrbanSARFloods training,hand_median,bldg_height,-0.321
+(b) UrbanSARFloods training,hand_median,ob_bldg_frac,0.311
+(b) UrbanSARFloods training,hand_lt5_frac,slope_mean,-0.945
+(b) UrbanSARFloods training,hand_lt5_frac,slope_p90,-0.92
+(b) UrbanSARFloods training,hand_lt5_frac,elev_range,-0.944
+(b) UrbanSARFloods training,hand_lt5_frac,hand_median,-0.957
+(b) UrbanSARFloods training,hand_lt5_frac,hand_lt5_frac,1.0
+(b) UrbanSARFloods training,hand_lt5_frac,veg_frac,-0.342
+(b) UrbanSARFloods training,hand_lt5_frac,tree_frac,-0.663
+(b) UrbanSARFloods training,hand_lt5_frac,built_frac,0.177
+(b) UrbanSARFloods training,hand_lt5_frac,bldg_height,0.348
+(b) UrbanSARFloods training,hand_lt5_frac,ob_bldg_frac,-0.398
+(b) UrbanSARFloods training,veg_frac,slope_mean,0.183
+(b) UrbanSARFloods training,veg_frac,slope_p90,0.147
+(b) UrbanSARFloods training,veg_frac,elev_range,0.376
+(b) UrbanSARFloods training,veg_frac,hand_median,0.409
+(b) UrbanSARFloods training,veg_frac,hand_lt5_frac,-0.342
+(b) UrbanSARFloods training,veg_frac,veg_frac,1.0
+(b) UrbanSARFloods training,veg_frac,tree_frac,0.223
+(b) UrbanSARFloods training,veg_frac,built_frac,-0.631
+(b) UrbanSARFloods training,veg_frac,bldg_height,-0.745
+(b) UrbanSARFloods training,veg_frac,ob_bldg_frac,-0.4
+(b) UrbanSARFloods training,tree_frac,slope_mean,0.753
+(b) UrbanSARFloods training,tree_frac,slope_p90,0.742
+(b) UrbanSARFloods training,tree_frac,elev_range,0.555
+(b) UrbanSARFloods training,tree_frac,hand_median,0.6
+(b) UrbanSARFloods training,tree_frac,hand_lt5_frac,-0.663
+(b) UrbanSARFloods training,tree_frac,veg_frac,0.223
+(b) UrbanSARFloods training,tree_frac,tree_frac,1.0
+(b) UrbanSARFloods training,tree_frac,built_frac,0.114
+(b) UrbanSARFloods training,tree_frac,bldg_height,-0.35
+(b) UrbanSARFloods training,tree_frac,ob_bldg_frac,0.568
+(b) UrbanSARFloods training,built_frac,slope_mean,-0.002
+(b) UrbanSARFloods training,built_frac,slope_p90,0.025
+(b) UrbanSARFloods training,built_frac,elev_range,-0.256
+(b) UrbanSARFloods training,built_frac,hand_median,-0.265
+(b) UrbanSARFloods training,built_frac,hand_lt5_frac,0.177
+(b) UrbanSARFloods training,built_frac,veg_frac,-0.631
+(b) UrbanSARFloods training,built_frac,tree_frac,0.114
+(b) UrbanSARFloods training,built_frac,built_frac,1.0
+(b) UrbanSARFloods training,built_frac,bldg_height,0.813
+(b) UrbanSARFloods training,built_frac,ob_bldg_frac,0.885
+(b) UrbanSARFloods training,bldg_height,slope_mean,-0.249
+(b) UrbanSARFloods training,bldg_height,slope_p90,-0.227
+(b) UrbanSARFloods training,bldg_height,elev_range,-0.312
+(b) UrbanSARFloods training,bldg_height,hand_median,-0.321
+(b) UrbanSARFloods training,bldg_height,hand_lt5_frac,0.348
+(b) UrbanSARFloods training,bldg_height,veg_frac,-0.745
+(b) UrbanSARFloods training,bldg_height,tree_frac,-0.35
+(b) UrbanSARFloods training,bldg_height,built_frac,0.813
+(b) UrbanSARFloods training,bldg_height,bldg_height,1.0
+(b) UrbanSARFloods training,bldg_height,ob_bldg_frac,0.687
+(b) UrbanSARFloods training,ob_bldg_frac,slope_mean,0.492
+(b) UrbanSARFloods training,ob_bldg_frac,slope_p90,0.495
+(b) UrbanSARFloods training,ob_bldg_frac,elev_range,0.306
+(b) UrbanSARFloods training,ob_bldg_frac,hand_median,0.311
+(b) UrbanSARFloods training,ob_bldg_frac,hand_lt5_frac,-0.398
+(b) UrbanSARFloods training,ob_bldg_frac,veg_frac,-0.4
+(b) UrbanSARFloods training,ob_bldg_frac,tree_frac,0.568
+(b) UrbanSARFloods training,ob_bldg_frac,built_frac,0.885
+(b) UrbanSARFloods training,ob_bldg_frac,bldg_height,0.687
+(b) UrbanSARFloods training,ob_bldg_frac,ob_bldg_frac,1.0

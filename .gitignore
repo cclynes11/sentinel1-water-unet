@@ -12,6 +12,7 @@ credentials*
 data/
 s1water_work/
 outputs/
+!analysis/proxy/outputs/
 *.tif
 *.tiff
 *.h5
