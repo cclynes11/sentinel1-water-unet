@@ -36,3 +36,6 @@ dist/
 # os
 .DS_Store
 Thumbs.db
+
+# UrbanSARFloods evaluation: in-progress chip checkpoints (merged into results_parts/*.csv when done)
+analysis/results_parts/*.partial/
