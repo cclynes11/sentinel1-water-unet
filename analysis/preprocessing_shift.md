@@ -61,7 +61,7 @@ Consequences:
 | Band order | VV, VH, VV, VH | VV, VH, VV, VH (bands 6, 5 for pre; 8, 7 for post; see `band_identification.md`) |
 | No data | SNAP no-data 0 dB → 250; tile padding 255 | NaN → 250 (`db_to_uint8` NaN rule). 34-46 % of each scene is NaN (outside the swath). These pixels are **excluded from every metric** but the network still sees 250 as context at chip borders |
 | Values clipped by the scaling | (not reported for training) | ≤ -49 dB: < 0.001 % of valid pixels. ≥ 1 dB: VV 0.07-1.9 % (Weihui 1.8-1.9 %, urban double bounce), VH < 0.07 % |
-| Precision | float16 on GPU (original), float32 port validated | deterministic chip pass **float32**. MC-dropout passes and full-scene runs **bfloat16 autocast** on CPU for speed (mean abs. probability difference vs float32 6 × 10⁻⁴, 0.06 % of pixels flip, ~9× smaller than the MC-dropout spread). The Slurm scripts default to float32 everywhere |
+| Precision | float16 on GPU (original), float32 port validated | deterministic chip pass **float32**. MC-dropout passes and full-scene runs **bfloat16 autocast** on CPU for speed (mean abs. probability difference vs float32 6 × 10⁻⁴, 0.06 % of pixels flip, ~9× smaller than the MC-dropout spread). Exceptions: the last 461 Nova Kakhovka chips and the Nova Kakhovka full scene ran in float32, because the host had no native bfloat16 after a restart. Recorded per chip (`mc_dtype`) and per scene. The Slurm scripts default to float32 everywhere |
 
 ## 4. Context and tiling
 
@@ -69,7 +69,7 @@ Consequences:
 |---|---|---|
 | Training patches | 256 × 256 | - |
 | Inference, chips | original: 4224 px tiles, 64 px cropped on each side (no border effect) | **each 256 px chip on its own, no crop**: predictions within ~32-64 px of a chip edge lack context. The chips are what `usf_results.csv` scores |
-| Inference, full scenes | 4224 px tiles every 4096 px, 64 px crop | same scheme with **2176 px tiles every 2048 px** (same 64 px crop and context margin) because a 4224 px tile needs ~15 GB in float32 on CPU and bfloat16 fails for that size in oneDNN. Used for the error maps and `scene_metrics/`. The first 64 rows/cols are unpredicted and excluded, as in the original workflow. The Slurm script keeps 4224 px in float32 |
+| Inference, full scenes | 4224 px tiles every 4096 px, 64 px crop | same scheme with **2176 px tiles every 2048 px** (same 64 px crop and context margin) because a 4224 px tile needs ~15 GB in float32 on CPU and bfloat16 fails for that size in oneDNN (bfloat16 for Weihui and both Jubba scenes, float32 for Nova Kakhovka). Used for the error maps and `scene_metrics/`. The first 64 rows/cols are unpredicted and excluded, as in the original workflow. The Slurm script keeps 4224 px in float32 |
 
 ## 5. Scene content, sensor and acquisition
 
