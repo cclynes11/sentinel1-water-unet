@@ -542,6 +542,7 @@ def process_batch(model, batch, gt_src, args) -> list[dict]:
                 row[f"mc_var_{name}"] = float(var[v].mean())
                 row[f"mean_entropy_{name}"] = float(entropy(mu[v]).mean())
         row["mc_passes"] = T
+        row["det_dtype"], row["mc_dtype"] = args.dtype, args.mc_dtype
         rows.append(row)
     return rows
 

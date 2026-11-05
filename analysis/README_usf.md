@@ -42,6 +42,7 @@ events (Hugging Face `S1Floodbenchmark/UrbanSARFloods_v1`, revision `0892ffa`):
 | `mean_entropy_{pre,post,flood}` | **mean predictive entropy**: mean over pixels of H(p̄), p̄ = MC mean, in bits |
 | `mc_var_{pre,post,flood}` | **MC-dropout variance**: mean over pixels of the per-pixel variance (unbiased, 20 passes) of P(pre), P(post) and P(flood) = P(post)·(1 − P(pre)) |
 | `mc_passes` | 20 |
+| `det_dtype`, `mc_dtype` | precision of the deterministic pass and of the MC-dropout passes (`float32` or `bfloat16` autocast) |
 
 All pixel means are over the valid pixels of the chip. Chips with no valid pixel have NaN metrics.
 
