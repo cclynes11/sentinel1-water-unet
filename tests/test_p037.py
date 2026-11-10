@@ -117,7 +117,7 @@ def test_synthetic_cache_and_patch_dataset(tmp_path):
     train, val = select_patches(cfg, ds)
     assert set(val["event"]) == {"train_0"} and "train_0" not in set(train["event"])
     assert set(train["split"]) == {"train"} and set(val["split"]) == {"train", "val"}
-    x, y, m = PatchDataset(cfg, ds, train, augment=True)[0]
+    x, y, m = PatchDataset(cfg, ds, train)[0]
     assert x.shape == (4, 64, 64) and str(x.dtype) == "torch.uint8" and y.shape == m.shape == (1, 64, 64)
     assert channel_indices(["post_VV", "post_VH", "post_VV", "post_VH"], meta.channels) == [2, 3, 2, 3]
     with pytest.raises(KeyError):
@@ -510,3 +510,37 @@ def test_compare_runs_uses_common_tiles_only(tmp_path):
     out = compare_runs({"a": tmp_path / "a.csv", "b": tmp_path / "b.csv"}).set_index(["event", "run"])
     assert out.loc[("all", "a"), "tiles"] == 2 and out.loc[("all", "a"), "recall"] == pytest.approx(0.5)
     assert out.loc[("e", "b"), "f1"] == pytest.approx(1.0)
+
+
+def test_random_flips_move_image_target_and_mask_together():
+    torch = pytest.importorskip("torch")
+    from p037.train import random_flips
+
+    x = torch.arange(8 * 3 * 4 * 4, dtype=torch.float32).reshape(8, 3, 4, 4)
+    y, m = x[:, :1].clone(), x[:, 1:2].clone()
+    fx, fy, fm = random_flips(x.clone(), y.clone(), m.clone(), torch.Generator().manual_seed(0))
+    assert torch.equal(fy, fx[:, :1]) and torch.equal(fm, fx[:, 1:2])  # the same flip for all three
+    kinds = {tuple(bool(torch.equal(fx[i], x[i].flip(d))) if d else bool(torch.equal(fx[i], x[i]))
+                   for d in (None, (-1,), (-2,), (-1, -2))) for i in range(8)}
+    assert all(sum(k) == 1 for k in kinds) and len(kinds) > 1  # each patch is one of the 4 orientations
+    again = random_flips(x.clone(), y.clone(), m.clone(), torch.Generator().manual_seed(0))[0]
+    assert torch.equal(again, fx)
+
+
+def test_resumed_training_repeats_an_uninterrupted_run(tmp_path):
+    torch = pytest.importorskip("torch")
+    from p037.train import train
+
+    torch.set_num_threads(1)
+    cols = ["train_loss", "val_loss", "val_accuracy"]
+    logs = {}
+    for name, steps in (("straight", [3]), ("resumed", [1, 2, 3])):
+        root = tmp_path / name
+        for epochs in steps:  # each call after the first resumes from last.pt
+            cfg = make_cfg(root, epochs=epochs)
+            if not get_dataset(cfg).has_cache():
+                get_dataset(cfg).build_cache(n_train=16, n_val=8)
+            train(cfg, "cpu")
+        logs[name] = pd.read_csv(cfg.out / "log.csv")[cols].to_numpy()
+    assert logs["straight"].shape == (3, 3)
+    np.testing.assert_allclose(logs["resumed"], logs["straight"], rtol=1e-5)

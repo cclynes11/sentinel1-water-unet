@@ -56,14 +56,15 @@ class PatchDataset(torch.utils.data.Dataset):
     x holds the cached channels named in ``cfg.input_channels``. target is 1 where the label is
     one of ``cfg.target_classes``. mask is 0 where the label is invalid (255): those pixels are
     left out of the loss and the scores. x stays uint8 here and is scaled to [0, 1] on the GPU.
+    Nothing here is random: the flips are applied to whole batches in the training loop
+    (``train.random_flips``), so they do not depend on the number of loader workers.
     """
 
-    def __init__(self, cfg: Config, ds: Dataset, rows, augment: bool):
+    def __init__(self, cfg: Config, ds: Dataset, rows):
         self.ds = ds
         self.rows = rows[["split", "index"]].to_records(index=False)
         self.channels = channel_indices(cfg.input_channels, ds.meta().channels)
         self.target_classes = np.array(cfg.target_classes, np.uint8)
-        self.augment = augment
         self._arrays = {}  # opened lazily, once per worker process
 
     def __len__(self):
@@ -76,27 +77,17 @@ class PatchDataset(torch.utils.data.Dataset):
         images, labels = self._arrays[split]
         x = np.asarray(images[index])[self.channels]
         lab = np.asarray(labels[index])
-        if self.augment:
-            if np.random.rand() < 0.5:
-                x, lab = x[:, :, ::-1], lab[:, ::-1]
-            if np.random.rand() < 0.5:
-                x, lab = x[:, ::-1, :], lab[::-1, :]
         y = np.isin(lab, self.target_classes).astype(np.float32)[None]
         m = (lab != INVALID).astype(np.float32)[None]
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(y), torch.from_numpy(m)
 
 
-def _seed_worker(worker_id: int):
-    np.random.seed(torch.initial_seed() % 2**32)
-
-
 def make_loaders(cfg: Config, device: str):
     ds = get_dataset(cfg)
     train_rows, val_rows = select_patches(cfg, ds)
-    kw = dict(num_workers=cfg.num_workers, pin_memory=device == "cuda", worker_init_fn=_seed_worker,
-              persistent_workers=cfg.num_workers > 0)
-    train = torch.utils.data.DataLoader(PatchDataset(cfg, ds, train_rows, augment=cfg.flips),
+    kw = dict(num_workers=cfg.num_workers, pin_memory=device == "cuda", persistent_workers=cfg.num_workers > 0)
+    train = torch.utils.data.DataLoader(PatchDataset(cfg, ds, train_rows),
                                         batch_size=cfg.batch_size, shuffle=True, drop_last=True, **kw)
-    val = torch.utils.data.DataLoader(PatchDataset(cfg, ds, val_rows, augment=False),
+    val = torch.utils.data.DataLoader(PatchDataset(cfg, ds, val_rows),
                                       batch_size=cfg.batch_size, shuffle=False, **kw)
     return train, val, train_rows, val_rows

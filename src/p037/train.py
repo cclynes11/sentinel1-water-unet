@@ -44,6 +44,19 @@ def bce_dice_loss(p: torch.Tensor, y: torch.Tensor, m: torch.Tensor, smooth: flo
     return bce + (1 - dice)
 
 
+def random_flips(x, y, m, gen: torch.Generator):
+    """Flip each patch of a batch left-right and up-down, each with probability 1/2.
+
+    Image, target and mask of a patch are flipped together. ``gen`` is a CPU generator, so the
+    flips are the same on any device."""
+    flip = torch.rand((2, x.shape[0]), generator=gen) < 0.5
+    for axis, selected in ((-1, flip[0]), (-2, flip[1])):
+        idx = selected.nonzero().squeeze(1).to(x.device)
+        if len(idx):
+            x[idx], y[idx], m[idx] = x[idx].flip(axis), y[idx].flip(axis), m[idx].flip(axis)
+    return x, y, m
+
+
 def _to_device(batch, device):
     x, y, m = batch
     x = x.to(device, non_blocking=True).float().div_(255.0)  # 8-bit image / 255, as in the original
@@ -115,8 +128,14 @@ def train(cfg: Config, device: str | None = None, restart: bool = False) -> dict
         t0 = time.time()
         model.train()
         loss_sum, n = 0.0, 0
+        # Everything random in an epoch (patch order, dropout, flips) is seeded from (seed, epoch) alone,
+        # so an epoch is the same whether the run reached it in one job or after a resume.
+        torch.manual_seed(cfg.seed * 100_003 + epoch)
+        flip_gen = torch.Generator().manual_seed(cfg.seed * 100_003 + epoch)
         for batch in train_loader:
             x, y, m = _to_device(batch, device)
+            if cfg.flips:
+                x, y, m = random_flips(x, y, m, flip_gen)
             with torch.autocast(device_type=torch.device(device).type, enabled=amp):
                 p = model(x)
             loss = bce_dice_loss(p, y, m)  # outside autocast: BCE on probabilities needs float32
