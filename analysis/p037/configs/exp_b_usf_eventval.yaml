@@ -1,0 +1,23 @@
+# Experiment B, comparison validation: whole events held out for validation instead of the official
+# random-within-scene split. Question for the supervisor: official split vs event-held-out validation.
+# The two scenes below are a first proposal, to settle with the supervisor: one analogue of each test
+# region that has one (Beledweyne 2023 for Jubba, Hebei scene 2 for Weihui). Caveat: Hebei scene 1 stays
+# in training, so Hebei_2 is an unseen scene of a seen event; holding out both Hebei scenes would remove
+# 176 of the 471 urban-flood training chips.
+name: exp_b_usf_eventval
+dataset: urbansarfloods
+init: random
+input_channels: [pre_VV, pre_VH, post_VV, post_VH]
+target_classes: [1, 2]
+flood_rule: direct
+epochs: 200
+batch_size: 32
+lr: 0.0001
+patience: 30
+checkpoint_metric: f1
+val_mode: events
+val_events: [20231114_Beledweyne, 20230805_Hebei_2]
+max_hours: 11.5
+mc_passes: 20
+reference_set: b_usf_train    # the analysis narrows this to the patches actually trained on
+score_class: open

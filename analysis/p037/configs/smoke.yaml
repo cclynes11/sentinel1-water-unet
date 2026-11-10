@@ -1,0 +1,17 @@
+# Dry run on generated data: every stage in a few minutes on a laptop CPU. Results mean nothing.
+name: smoke
+dataset: synthetic
+init: random
+input_channels: [pre_VV, pre_VH, post_VV, post_VH]
+target_classes: [1, 2]
+flood_rule: direct
+epochs: 3
+batch_size: 8
+lr: 0.0003
+patience: 0
+bn_momentum: 0.1              # few steps: let batch-norm statistics settle quickly
+num_workers: 0
+tile: 64
+window: 128
+crop: 32
+mc_passes: 4

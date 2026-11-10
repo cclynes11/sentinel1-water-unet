@@ -1,0 +1,12 @@
+# Experiment A: the pretrained weights on the model's own Amazon data. BLOCKED: no data yet.
+# See src/p037/datasets/amazon_wagner.py for what is missing and the format to produce.
+# Once the cache exists:  p037 evaluate --config ... --patches val   then   p037 analyze --tiles <run>/tiles_patches_val.csv
+name: exp_a_amazon
+dataset: amazon_wagner
+init: pretrained
+input_channels: [VV, VH, VV, VH]
+target_classes: [1]
+flood_rule: direct            # "flood" here is the model's native output, water
+mc_passes: 20
+reference_set: a_amazon_train # set name to give the real training patches in the proxy table
+score_class: water
