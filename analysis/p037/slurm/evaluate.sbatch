@@ -11,5 +11,8 @@
 # coverage, run the analysis. Usage: sbatch evaluate.sbatch CONFIG
 # Scenes already scored are reused, so a job that hits the time limit can simply be resubmitted.
 set -euo pipefail
-source "$(dirname "$0")/env.sh" 2>/dev/null || source "$SLURM_SUBMIT_DIR/env.sh"
+for d in "${SLURM_SUBMIT_DIR:-.}" "${SLURM_SUBMIT_DIR:-.}/analysis/p037/slurm" "$(dirname "$0")"; do
+  if [ -f "$d/env.sh" ]; then source "$d/env.sh"; break; fi
+done
+command -v p037 >/dev/null || { echo "environment not set up: see analysis/p037/slurm/env.sh" >&2; exit 1; }
 p037 all --config "$1"

@@ -1,7 +1,8 @@
 #!/bin/bash
 # Submit one experiment end to end: data -> train (x N, each resuming the last) -> evaluate + analysis.
-# Usage: bash analysis/p037/slurm/submit.sh CONFIG [N_TRAIN_JOBS=2] [SOURCE [SCENE_SOURCE]]
-# Edit env.sh and the EDIT_ME lines of the .sbatch files first.
+# Usage: bash analysis/p037/slurm/submit.sh CONFIG [N_TRAIN_JOBS=2] [SOURCE [SCENES]]
+# First: set --account and --partition (EDIT_ME) in the three .sbatch files and the environment in env.sh.
+# Jobs are submitted from this folder, so their .out logs are written here.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 CONFIG=$(realpath "$1")
