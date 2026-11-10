@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from ..config import Config
-from .amazon_wagner import AmazonWagner
+from .amazon_public import AmazonPublic
 from .base import Dataset
 from .synthetic import Synthetic
 from .urbansarfloods import UrbanSARFloods
 
-REGISTRY: dict[str, type[Dataset]] = {d.key: d for d in (UrbanSARFloods, AmazonWagner, Synthetic)}
+REGISTRY: dict[str, type[Dataset]] = {d.key: d for d in (UrbanSARFloods, AmazonPublic, Synthetic)}
 
 
 def get_dataset(cfg: Config) -> Dataset:

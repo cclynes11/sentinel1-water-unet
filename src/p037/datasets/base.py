@@ -63,6 +63,8 @@ class Dataset:
     test_events: list[str] = []
     # scene -> event, when one event is covered by several scenes (used for held-out-event tests)
     event_groups: dict[str, str] = {}
+    # False for a dataset that is only evaluated (no patch cache to build, nothing to train on)
+    has_training_data = True
 
     def __init__(self, root: Path):
         self.root = Path(root)
@@ -88,7 +90,16 @@ class Dataset:
 
     # ------------------------------------------------------------------ shared readers
     def meta(self) -> CacheMeta:
-        return CacheMeta.read(self.cache_dir / "meta.json")
+        """Channels, classes and patch size: from the cache if there is one, else from the adapter."""
+        path = self.cache_dir / "meta.json"
+        if path.exists():
+            return CacheMeta.read(path)
+        return CacheMeta(dataset=self.key, channels=list(self.channels), patch=self.patch,
+                         classes=dict(self.classes), target=self.target)
+
+    def list_events(self, source: str | None = None) -> list[str]:
+        """The scenes `p037 data --what scenes` prepares when the config names none."""
+        return list(self.test_events)
 
     def patches(self):
         import pandas as pd

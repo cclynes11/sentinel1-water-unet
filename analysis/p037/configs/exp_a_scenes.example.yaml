@@ -1,0 +1,32 @@
+# Template of the scene list of Experiment A. Copy it as scenes.yaml into the folder that holds the files
+# (the folder passed as --source); paths are relative to that folder.
+#
+# One entry per Sentinel-1 scene. The entry name becomes the event name in every table and figure.
+#   image       8-bit, 2-band (VV, VH) GeoTIFF: the output of `s1water preprocess` (SNAP chain of the
+#               repository), or the word  example  for the repository's preprocessed Anavilhanas scene
+#   labels      one or more label rasters (globs allowed); they are warped to the image grid
+#   label_kind  gsw_monthly     JRC GSW Monthly History (0 no data, 1 not water, 2 water)
+#               gsw_occurrence  JRC GSW Occurrence (0-100 %; water where >= water_min, default 50)
+#               binary          any 0 / 1 water mask, e.g. an exported MapBiomas Water annual layer
+#   note        free text, stored in the scene's info.json
+#
+# Choosing scenes and labels:
+# * Stay inside the paper's study area (Rio Negro basin) and period (2022-2023) for an in-distribution test.
+# * A same-month gsw_monthly label is the closest public match in time. Monthly History has gaps under
+#   cloud (value 0): the pipeline leaves those pixels unscored, so check labelled_share_of_valid in info.json.
+# * gsw_occurrence is long-term (not dated): use it when no monthly label exists for the scene's month,
+#   and expect seasonal water to count as disagreement.
+# * Labels are downloaded by hand: https://global-surface-water.appspot.com/download (10 x 10 degree tiles).
+
+rionegro_20231015:                      # placeholder name and files: replace with your own
+  image: "<Sentinel-1 product name>_VV_VH_8bits.tif"
+  labels: ["gsw_monthly/2023_10/*.tif"]
+  label_kind: gsw_monthly
+  note: "JRC GSW Monthly History, October 2023"
+
+anavilhanas_example:
+  image: example
+  labels: ["gsw_occurrence/occurrence_*.tif"]
+  label_kind: gsw_occurrence
+  water_min: 50
+  note: "Repository example scene vs long-term occurrence: a smoke test of the route, not a dated comparison"

@@ -356,3 +356,157 @@ def test_any_class_is_derived_for_older_result_tables(tmp_path):
     df, *_ = prepare(cfg, tmp_path / "t.csv")
     expect = (t["flood_open_fp"] + t["flood_open_fn"] + t["flood_urban_fn"]).to_numpy()
     np.testing.assert_array_equal(df["err_px"].to_numpy(), expect)
+
+
+# ------------------------------------------------------------------------------------- Experiment A adapter
+def test_label_rules():
+    from p037.datasets.amazon_public import LABEL_KINDS, rule_for
+
+    covered = np.array([True, True, True, False])
+    monthly = LABEL_KINDS["gsw_monthly"].apply(np.array([0, 1, 2, 2]), covered)
+    assert monthly.tolist() == [INVALID, 0, 1, INVALID]  # no data, not water, water, outside the label file
+    with pytest.raises(ValueError, match="wrong label_kind"):
+        LABEL_KINDS["gsw_monthly"].apply(np.array([0, 1, 2, 77]), np.ones(4, bool))
+    occ = rule_for({"label_kind": "gsw_occurrence", "water_min": 80}).apply(np.array([0, 79, 80, 255]), np.ones(4, bool))
+    assert occ.tolist() == [0, 0, 1, INVALID]
+
+
+def _amazon_source(tmp_path, label_values=(1, 2)):
+    """A 10 m UTM 8-bit scene and a ~30 m geographic label whose water is everything east of a meridian."""
+    import rasterio
+    from rasterio.transform import from_origin
+    from rasterio.warp import transform as warp_points
+
+    src = tmp_path / "amazon_src"
+    src.mkdir()
+    h, w = 384, 512
+    crs, tr = "EPSG:32720", from_origin(700000, 9700000, 10, 10)
+    rng = np.random.default_rng(0)
+    img = rng.integers(60, 240, (2, h, w)).astype(np.uint8)
+    with rasterio.open(src / "s1.tif", "w", driver="GTiff", width=w, height=h, count=2, dtype="uint8", crs=crs,
+                       transform=tr) as o:
+        o.write(img)
+        o.set_band_description(1, "VV (8-bit)")
+        o.set_band_description(2, "VH (8-bit)")
+    # corners of the scene in lon / lat, and a label grid that covers it with a margin
+    lon, lat = warp_points(crs, "EPSG:4326", [700000, 700000 + 10 * w], [9700000, 9700000 - 10 * h])
+    step = 0.00027
+    left, top = min(lon) - 0.01, max(lat) + 0.01
+    n_cols, n_rows = int((max(lon) - min(lon) + 0.02) / step) + 1, int((max(lat) - min(lat) + 0.02) / step) + 1
+    split_lon = (lon[0] + lon[1]) / 2
+    cols_lon = left + (np.arange(n_cols) + 0.5) * step
+    label = np.where(cols_lon[None, :] > split_lon, label_values[1], label_values[0]) * np.ones((n_rows, 1), int)
+    with rasterio.open(src / "label.tif", "w", driver="GTiff", width=n_cols, height=n_rows, count=1, dtype="uint8",
+                       crs="EPSG:4326", transform=from_origin(left, top, step, step)) as o:
+        o.write(label.astype(np.uint8), 1)
+    (src / "scenes.yaml").write_text(
+        "rio_test:\n  image: s1.tif\n  labels: ['label*.tif']\n  label_kind: gsw_monthly\n  note: test\n")
+    return src, split_lon, (crs, tr, h, w)
+
+
+def test_amazon_scene_labels_land_on_the_image_grid(tmp_path):
+    rasterio = pytest.importorskip("rasterio")
+    import json
+
+    from rasterio.warp import transform as warp_points
+
+    from p037.datasets.amazon_public import AmazonPublic
+
+    src, split_lon, (crs, tr, h, w) = _amazon_source(tmp_path)
+    ds = AmazonPublic(tmp_path / "data" / "amazon_public")
+    assert ds.list_events(str(src)) == ["rio_test"] and ds.test_events == []
+    ds.prepare_scene("rio_test", str(src))
+    assert ds.test_events == ["rio_test"] and ds.meta().channels == ["VV", "VH"]
+    f = ds.scene_files("rio_test")
+    with rasterio.open(f["gt"]) as g, rasterio.open(f["valid"]) as v, rasterio.open(f["image"]) as im:
+        gt, valid = g.read(1), v.read(1).astype(bool)
+        assert list(im.descriptions) == ["VV", "VH"] and (g.crs, g.transform) == (im.crs, im.transform)
+    # expected label of every pixel from its own centre longitude
+    cols, rows = np.meshgrid(np.arange(w) + 0.5, np.arange(h) + 0.5)
+    x, y = tr.c + tr.a * cols.ravel(), tr.f + tr.e * rows.ravel()
+    lon, _ = warp_points(crs, "EPSG:4326", x.tolist(), y.tolist())
+    lon = np.array(lon).reshape(h, w)
+    sure = valid & (np.abs(lon - split_lon) > 0.0003)  # more than one label cell away from the boundary
+    np.testing.assert_array_equal(gt[sure], (lon[sure] > split_lon).astype(np.uint8))
+    assert valid.mean() > 0.5 and (gt[~valid] == INVALID).all()
+    info = json.loads((ds.scene_dir("rio_test") / "info.json").read_text())
+    assert set(info["label_value_counts"]) == {"1", "2"} and info["labelled_share_of_valid"] == pytest.approx(1.0)
+
+
+def test_amazon_refuses_a_wrong_label_coding_and_labels_elsewhere(tmp_path):
+    pytest.importorskip("rasterio")
+    from p037.datasets.amazon_public import AmazonPublic
+
+    src, *_ = _amazon_source(tmp_path, label_values=(0, 100))  # an occurrence raster declared as monthly history
+    with pytest.raises(ValueError, match="wrong label_kind"):
+        AmazonPublic(tmp_path / "d1").prepare_scene("rio_test", str(src))
+    (src / "scenes.yaml").write_text("rio_test:\n  image: s1.tif\n  labels: ['nothing*.tif']\n  label_kind: binary\n")
+    with pytest.raises(FileNotFoundError):
+        AmazonPublic(tmp_path / "d2").prepare_scene("rio_test", str(src))
+    (src / "scenes.yaml").write_text("rio_test:\n  image: s1.tif\n  labels: ['label.tif']\n  label_kind: nonsense\n")
+    with pytest.raises(KeyError, match="label_kind"):
+        AmazonPublic(tmp_path / "d3").prepare_scene("rio_test", str(src))
+
+
+def test_experiment_a_runs_from_scene_to_report(tmp_path, monkeypatch):
+    """The pretrained route end to end: scene + public label -> tiles with coordinates -> proxies -> report."""
+    torch = pytest.importorskip("torch")
+    pytest.importorskip("rasterio")
+    safetensors = pytest.importorskip("safetensors.torch")
+    from p037.analyze import run_analysis
+    from p037.evaluate import evaluate_scenes
+    from p037.model import build_model
+    from p037.proxies import check_coverage, merge_new
+
+    torch.set_num_threads(2)
+    src, *_ = _amazon_source(tmp_path)
+    cfg = Config(name="a", data_root=str(tmp_path / "data"), dataset="amazon_public", init="pretrained",
+                 input_channels=["VV", "VH", "VV", "VH"], target_classes=[1], score_class="water",
+                 reference_set="a_amazon", tile=64, window=128, crop=32, mc_passes=3, n_bootstrap=5,
+                 min_positive_px=20, proxies=["slope_mean", "tree_frac"], proxy_table=str(tmp_path / "proxies.csv"))
+    # stand-in for the published weights (no download in tests)
+    torch.manual_seed(0)
+    weights = tmp_path / "w.safetensors"
+    safetensors.save_file(build_model(cfg, init="random").state_dict(), str(weights))
+    monkeypatch.setenv("S1WATER_WEIGHTS", str(weights))
+
+    ds = get_dataset(cfg)
+    ds.prepare_scene("rio_test", str(src))
+    tiles = pd.read_csv(evaluate_scenes(cfg, "cpu"))
+    assert {"water_water_f1", "mc_var_water", "lon", "lat"} <= set(tiles.columns)
+    assert tiles["lon"].between(-62, -60).all() and tiles["lat"].between(-3.5, -2).all()  # UTM 20S, near the scene
+    # a reference distribution exists, the new tiles have no proxies yet
+    rng = np.random.default_rng(0)
+    ref = pd.DataFrame({"sample_id": [f"AMZ_{i}" for i in range(50)], "set": "a_amazon", "lon": -60.0, "lat": -3.0})
+    for p in cfg.proxies:
+        ref[f"{p}__tile"] = rng.normal(size=50)
+    ref["water_frac__tile"] = 0.1
+    ref.to_csv(cfg.proxy_table, index=False)
+    cover = check_coverage(cfg)
+    assert cover["missing"] == len(tiles)
+    todo = pd.read_csv(cover["missing_file"])
+    assert {"sample_id", "set", "region", "lon", "lat"} <= set(todo.columns) and todo["lon"].notna().all()
+    # what analysis/proxy/compute_proxies.py would return for them
+    values = pd.DataFrame({"sample_id": todo["sample_id"], "water_frac__tile": 0.7})
+    for p in cfg.proxies:
+        values[f"{p}__tile"] = rng.normal(size=len(todo))
+    values.to_csv(tmp_path / "new.csv", index=False)
+    merge_new(cfg, tmp_path / "new.csv")
+    assert check_coverage(cfg)["missing"] == 0
+    table = pd.read_csv(cfg.proxy_table)
+    assert len(table) == 50 + len(tiles) and table.loc[table["set"] == "test", "mostly_water"].all()
+    report = run_analysis(cfg)
+    assert "## 2. Where the test tiles sit" in report.read_text()
+
+
+def test_compare_runs_uses_common_tiles_only(tmp_path):
+    from p037.analyze import compare_runs
+
+    a = pd.DataFrame({"tile_id": ["t1", "t2", "t3"], "event": "e", "flood_open_tp": [10, 0, 5], "flood_open_fp": [0, 0, 5],
+                      "flood_open_fn": [10, 0, 0], "flood_open_tn": [80, 100, 90]})
+    b = a[a["tile_id"] != "t3"].assign(flood_open_tp=[20, 0], flood_open_fn=[0, 0])
+    a.to_csv(tmp_path / "a.csv", index=False)
+    b.to_csv(tmp_path / "b.csv", index=False)
+    out = compare_runs({"a": tmp_path / "a.csv", "b": tmp_path / "b.csv"}).set_index(["event", "run"])
+    assert out.loc[("all", "a"), "tiles"] == 2 and out.loc[("all", "a"), "recall"] == pytest.approx(0.5)
+    assert out.loc[("e", "b"), "f1"] == pytest.approx(1.0)

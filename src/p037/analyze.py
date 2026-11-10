@@ -79,6 +79,7 @@ def prepare(cfg: Config, tiles_csv: Path) -> tuple[pd.DataFrame, pd.DataFrame, d
     if len(ref) < 10:
         raise ValueError(f"only {len(ref)} rows of set {cfg.reference_set!r} in {cfg.proxy_table}")
     keep = ["sample_id", "lon", "lat", *[c for c in ("mostly_water",) if c in proxy], *columns.values()]
+    tiles = tiles.drop(columns=[c for c in ("lon", "lat") if c in tiles])  # the proxy table's are the ones used
     df = tiles.merge(proxy[keep], left_on="tile_id", right_on="sample_id", how="left")
     info["tiles"] = len(df)
     info["tiles_without_proxies"] = int(df["sample_id"].isna().sum())
@@ -249,6 +250,33 @@ def run_analysis(cfg: Config, tiles_csv: str | Path | None = None, out_dir: str 
     report = write_report(cfg, out, info, tables, kept, dropped, pre)
     log.info("analysis written to %s", out)
     return report
+
+
+def compare_runs(tables: dict[str, str | Path], target: str = "flood", score_class: str = "open",
+                 out_csv: str | Path | None = None) -> pd.DataFrame:
+    """Pixel-pooled scores of several runs on the tiles they have in common, per event.
+
+    ``tables`` maps a run name to its per-tile results CSV (e.g. the zero-shot results and
+    Experiment B). Only tiles present in every table are used, so the runs are compared on
+    exactly the same pixels. One row per (event, run)."""
+    pre = f"{target}_{score_class}"
+    cols = [f"{pre}_{k}" for k in ("tp", "fp", "fn", "tn")]
+    loaded = {name: pd.read_csv(path).set_index("tile_id") for name, path in tables.items()}
+    common = sorted(set.intersection(*(set(t.index) for t in loaded.values())))
+    if not common:
+        raise ValueError("the result tables have no tile_id in common")
+    rows = []
+    for name, t in loaded.items():
+        t = t.loc[common]
+        for event, g in [*t.groupby("event"), ("all", t)]:
+            c = [float(g[k].sum()) for k in cols]
+            s = scores(*c)
+            rows.append({"event": event, "run": name, "tiles": len(g), "f1": s["f1"], "iou": s["iou"],
+                         "precision": s["precision"], "recall": s["recall"], "positive_px": int(c[0] + c[2])})
+    df = pd.DataFrame(rows).sort_values(["event", "run"], kind="stable").reset_index(drop=True)
+    if out_csv:
+        df.to_csv(out_csv, index=False)
+    return df
 
 
 def write_report(cfg: Config, out: Path, info: dict, tables: dict, kept: list[str], dropped: dict, pre: str) -> Path:

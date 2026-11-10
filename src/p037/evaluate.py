@@ -113,6 +113,21 @@ def tile_row(meta: dict, out: dict, i: int, gt: np.ndarray, valid: np.ndarray, c
     return row
 
 
+def tile_centres(transform, crs, tile_rows, tile_cols, tile: int) -> tuple[np.ndarray, np.ndarray]:
+    """Longitude and latitude (WGS 84) of tile centres, from the scene's georeferencing.
+
+    The proxies are looked up at these coordinates, so every scored tile carries them."""
+    px = (np.asarray(tile_cols, float) + 0.5) * tile
+    py = (np.asarray(tile_rows, float) + 0.5) * tile
+    x = transform.a * px + transform.b * py + transform.c
+    y = transform.d * px + transform.e * py + transform.f
+    if crs is not None and not crs.is_geographic:
+        from rasterio.warp import transform as warp_points
+
+        x, y = (np.asarray(v) for v in warp_points(crs, "EPSG:4326", x.tolist(), y.tolist()))
+    return x, y
+
+
 def _split_tiles(a: np.ndarray, tile: int) -> np.ndarray:
     """(H, W) -> (rows * cols, tile, tile), row-major."""
     h, w = a.shape
@@ -165,6 +180,11 @@ def evaluate_scene(cfg: Config, predictor: Predictor, ds, event: str, meta) -> l
                 log.info("%s: window %d / %d, %.1f min", event, n, len(origins), (time.time() - t0) / 60)
         if prob_out is not None:
             prob_out.close()
+        if rows and im.crs is not None:
+            lon, lat = tile_centres(im.transform, im.crs, [r["tile_row"] for r in rows],
+                                    [r["tile_col"] for r in rows], tile)
+            for r, x, y in zip(rows, lon, lat, strict=True):
+                r["lon"], r["lat"] = round(float(x), 6), round(float(y), 6)
     return rows
 
 

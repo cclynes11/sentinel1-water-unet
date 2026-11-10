@@ -17,6 +17,9 @@ log = logging.getLogger("p037.data")
 def select_patches(cfg: Config, ds: Dataset):
     """(train rows, validation rows) of patches.csv for this experiment.
 
+    Patches without any valid pixel are dropped first; partly invalid ones are kept and their
+    invalid pixels are masked from the loss and the scores.
+
     official: the dataset's own lists. In UrbanSARFloods these are random within each scene, so
               validation patches neighbour training patches: good enough to pick a checkpoint,
               not a measure of generalisation.
@@ -25,6 +28,11 @@ def select_patches(cfg: Config, ds: Dataset):
               transfer to unseen events, at the cost of training data.
     """
     p = ds.patches()
+    empty = p["n_valid"] == 0
+    if empty.any():  # e.g. swath edges: no SAR data, nothing to learn or score, and their fill value would enter batch norm
+        log.info("dropping %d of %d patches without a single valid pixel (%s)", int(empty.sum()), len(p),
+                 ", ".join(f"{s}: {100 * m:.1f} %" for s, m in empty.groupby(p["split"]).mean().items()))
+        p = p[~empty]
     if cfg.val_mode == "official":
         train, val = p[p["split"] == "train"], p[p["split"] == "val"]
     else:

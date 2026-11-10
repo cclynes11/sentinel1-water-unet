@@ -323,7 +323,11 @@ class UrbanSARFloods(Dataset):
         root = Path(source) if source else self.download("scene", event)
         found = {n: next(iter(sorted(root.rglob(n))), None) for n in (sar_name, gt_name)}
         if None in found.values():
-            raise FileNotFoundError(f"{[n for n, p in found.items() if p is None]} not found under {root}")
+            raise FileNotFoundError(
+                f"{[n for n, p in found.items() if p is None]} not found under {root}. The 4 test scenes are separate "
+                f"files of the dataset (testing_case_orig/, not in the training archive). Either point --scene-source "
+                f"at the folder that holds them, or download them on a node with internet: "
+                f"`p037 data --config <config> --what scenes` (no --source).")
         self.scene_dir(event).mkdir(parents=True, exist_ok=True)
         with rasterio.open(found[sar_name]) as s, rasterio.open(found[gt_name]) as g:
             if (s.width, s.height, s.transform) != (g.width, g.height, g.transform):

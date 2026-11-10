@@ -3,9 +3,10 @@
     p037 data      build the patch cache and prepare the test scenes
     p037 train     train the U-Net (resumes from last.pt if present)
     p037 evaluate  predict and score the test scenes per tile (or cached patches)
-    p037 proxies   check that every training patch and test tile has proxy values
+    p037 proxies   check that every training patch and test tile has proxy values (--merge adds new ones)
     p037 analyze   join results and proxies; tables, figures and report.md
     p037 all       evaluate -> proxies -> analyze (after training)
+    p037 compare   scores of several runs on the tiles they share (e.g. zero-shot vs Experiment B)
 """
 
 from __future__ import annotations
@@ -48,6 +49,8 @@ def main(argv: list[str] | None = None) -> None:
 
     p = sub.add_parser("proxies", help="check proxy coverage")
     _add_common(p)
+    p.add_argument("--merge", default=None, metavar="CSV",
+                   help="add newly computed proxies (output of analysis/proxy/compute_proxies.py) to the table")
 
     p = sub.add_parser("analyze", help="tables, figures, report")
     _add_common(p)
@@ -56,6 +59,12 @@ def main(argv: list[str] | None = None) -> None:
 
     p = sub.add_parser("all", help="evaluate, proxies, analyze")
     _add_common(p)
+
+    p = sub.add_parser("compare", help="scores of several runs on their common tiles")
+    _add_common(p)
+    p.add_argument("--runs", nargs="+", required=True, metavar="NAME=TILES_CSV",
+                   help="e.g. zero_shot=analysis/usf_results.csv exp_b=<run folder>/tiles.csv")
+    p.add_argument("--out", default=None, help="CSV to write (default: print only)")
 
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
@@ -67,13 +76,16 @@ def main(argv: list[str] | None = None) -> None:
 
         ds = get_dataset(cfg)
         if args.what in ("cache", "all"):
-            if ds.has_cache():
+            if not ds.has_training_data:
+                logging.info("%s has no training data: no patch cache to build", cfg.dataset)
+            elif ds.has_cache():
                 logging.info("cache exists in %s (delete it to rebuild)", ds.cache_dir)
             else:
                 ds.build_cache(args.source, workers=args.workers)
         if args.what in ("scenes", "all"):
-            for event in cfg.eval_events or ds.test_events:
-                ds.prepare_scene(event, args.scene_source or args.source)
+            scene_source = args.scene_source or args.source
+            for event in cfg.eval_events or ds.list_events(scene_source):
+                ds.prepare_scene(event, scene_source)
     elif args.stage == "train":
         from .train import train
 
@@ -86,13 +98,22 @@ def main(argv: list[str] | None = None) -> None:
         else:
             evaluate_scenes(cfg, args.device, overwrite=args.overwrite)
     elif args.stage == "proxies":
-        from .proxies import check_coverage
+        from .proxies import check_coverage, merge_new
 
+        if args.merge:
+            merge_new(cfg, args.merge)
         check_coverage(cfg)
     elif args.stage == "analyze":
         from .analyze import run_analysis
 
         print(run_analysis(cfg, args.tiles, args.out))
+    elif args.stage == "compare":
+        from .analyze import compare_runs
+        from .datasets import REGISTRY
+
+        runs = dict(item.split("=", 1) for item in args.runs)
+        table = compare_runs(runs, REGISTRY[cfg.dataset].target, cfg.score_class, args.out)
+        print(table.round(3).to_string(index=False))
     elif args.stage == "all":
         from .analyze import run_analysis
         from .evaluate import evaluate_scenes
