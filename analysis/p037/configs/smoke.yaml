@@ -15,3 +15,7 @@ tile: 64
 window: 128
 crop: 32
 mc_passes: 4
+# The generated dataset has no real location, so its proxies are made up by the proxies stage and
+# kept with the run, away from the real proxy table.
+proxy_table: "{out}/proxies_generated.csv"
+n_bootstrap: 20

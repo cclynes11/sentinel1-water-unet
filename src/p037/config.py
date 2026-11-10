@@ -118,8 +118,10 @@ class Config:
         return Path(self.data_root) / self.dataset
 
     def resolve(self, path: str) -> Path:
-        """Paths in a config are relative to the repository root unless absolute."""
-        p = Path(path)
+        """Paths in a config are relative to the repository root unless absolute.
+
+        ``{out}`` and ``{data_root}`` stand for this experiment's run folder and the data folder."""
+        p = Path(path.replace("{out}", self.out_dir).replace("{data_root}", self.data_root))
         return p if p.is_absolute() else REPO_ROOT / p
 
     def to_dict(self) -> dict:

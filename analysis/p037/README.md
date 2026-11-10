@@ -100,6 +100,19 @@ Outputs go to `$P037_DATA` (default `<repo>/data/p037`, which is not tracked by 
 Any option can be changed without editing a file: `--set epochs=5 --set batch_size=16`.
 A misspelt option is an error, not silently ignored.
 
+### The notebooks
+
+`analysis/p037/notebooks/01_data.ipynb` to `05_analyze.ipynb` walk through one stage each. They
+call the package, show what each step produces and say what to check before moving on.
+
+- Notebooks 01 to 04 default to the dry-run config, so they run on a laptop. Change `CONFIG` in
+  the first cell (or set `P037_CONFIG`) to work on a real experiment. Heavy steps (cache building,
+  training, scene prediction) are then left to the Slurm jobs and the notebook reads their output.
+- Notebook 05 defaults to the zero-shot results, whose per-tile table is in the repository, so
+  it shows real numbers without a GPU or any download.
+- They are generated from `build_notebooks.py` and stored without outputs. Save your own copy
+  under another name before editing one.
+
 ## 4. The experiments
 
 | Config | What it is | Model | Input channels | Status (10 Nov 2026) |
@@ -364,7 +377,7 @@ Decisions that are the supervisor's, each already a config switch:
 
 ## 11. What has been checked, and what has not
 
-Checked (`pytest tests/test_p037.py`, 22 tests, CPU):
+Checked (`pytest tests/test_p037.py`, 23 tests, CPU):
 
 - cache and scene formats, band order by name, quadrant cutting, invalid-pixel handling
 - loss, metrics, one-vs-rest scoring, percentile placement, collinearity pruning, bootstrap
@@ -374,6 +387,8 @@ Checked (`pytest tests/test_p037.py`, 22 tests, CPU):
 - the full-size model (34.6 M parameters) through one training epoch and one scene at the real
   tile and window sizes, on CPU
 - the analysis of the zero-shot results reproduces the committed tables exactly
+- the dry run from the command line, and all five notebooks run top to bottom (01 to 04 on
+  generated data, 04 and 05 also on the real proxy table and zero-shot results)
 
 Not checked, because it needs the cluster or data that is not here:
 

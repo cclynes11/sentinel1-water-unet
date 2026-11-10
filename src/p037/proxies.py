@@ -59,6 +59,14 @@ def check_coverage(cfg: Config) -> dict:
     log.info("proxy coverage of %s: %d of %d samples\n%s", cfg.name, out["covered"], out["needed"], out["by_set"])
     if len(missing):
         path = cfg.out / "proxy_samples_missing.csv"
+        ds = get_dataset(cfg)
+        if hasattr(ds, "generate_proxies"):  # the generated dataset of dry runs: made-up values, no download
+            missing.to_csv(path, index=False)
+            values = cfg.out / "proxies_generated_values.csv"
+            ds.generate_proxies(missing, [f"{p}__{cfg.proxy_scale}" for p in cfg.proxies]).to_csv(values, index=False)
+            merge_new(cfg, values)
+            log.info("%s is a generated dataset: its proxy values are made up", cfg.dataset)
+            return check_coverage(cfg)
         located = missing.dropna(subset=["lon", "lat"]) if "lon" in missing else missing.iloc[:0]
         located.to_csv(path, index=False)
         script: Path = REPO_ROOT / "analysis" / "proxy" / "compute_proxies.py"

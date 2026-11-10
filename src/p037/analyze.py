@@ -112,6 +112,10 @@ def run_analysis(cfg: Config, tiles_csv: str | Path | None = None, out_dir: str 
     ds = REGISTRY[cfg.dataset]
     pre = f"{ds.target}_{cfg.score_class}"
     df, ref, columns, info = prepare(cfg, tiles_csv)
+    if df.empty:
+        raise ValueError(f"none of the {info['tiles']} tiles of {tiles_csv} can be analysed "
+                         f"({info['tiles_without_proxies']} have no proxy values in {cfg.proxy_table}): "
+                         f"run `p037 proxies` first")
     events = sorted(df["event"].unique())
     proxies = list(columns)
     kept, dropped = ood.prune_collinear(ref, columns, cfg.max_proxy_corr)

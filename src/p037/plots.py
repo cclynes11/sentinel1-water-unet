@@ -8,11 +8,13 @@ thing that needs it, the three predictor families in the held-out tests.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")
+if "ipykernel" not in sys.modules:  # scripts and jobs draw to files; a notebook keeps its inline display
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402

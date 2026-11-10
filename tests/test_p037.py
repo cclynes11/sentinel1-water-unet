@@ -544,3 +544,14 @@ def test_resumed_training_repeats_an_uninterrupted_run(tmp_path):
         logs[name] = pd.read_csv(cfg.out / "log.csv")[cols].to_numpy()
     assert logs["straight"].shape == (3, 3)
     np.testing.assert_allclose(logs["resumed"], logs["straight"], rtol=1e-5)
+
+
+def test_dry_run_dataset_fills_its_own_proxy_table(tmp_path):
+    from p037.proxies import check_coverage
+
+    cfg = make_cfg(tmp_path, proxy_table="{out}/generated.csv")
+    get_dataset(cfg).build_cache(n_train=8, n_val=4)
+    cover = check_coverage(cfg)
+    assert cover["missing"] == 0 and cover["needed"] == 8
+    table = pd.read_csv(cfg.out / "generated.csv")
+    assert set(table["set"]) == {cfg.reference_set} and f"{cfg.proxies[0]}__tile" in table

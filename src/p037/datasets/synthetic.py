@@ -114,3 +114,16 @@ class Synthetic(Dataset):
             o.write(label, 1)
         with rasterio.open(out["valid"], "w", count=1, dtype="uint8", **prof) as o:
             o.write(valid.astype(np.uint8), 1)
+
+    def generate_proxies(self, samples, columns: list[str], seed: int = 0):
+        """Made-up proxy values (standard normal) for the given samples: dry runs only.
+
+        A real dataset gets its proxies from ``analysis/proxy/compute_proxies.py``. Having this
+        method is what tells the proxies stage that it may fill the table by itself."""
+        import pandas as pd
+
+        rng = np.random.default_rng(seed)
+        out = pd.DataFrame({"sample_id": samples["sample_id"].to_numpy()})
+        for c in columns:
+            out[c] = rng.normal(size=len(out))
+        return out
