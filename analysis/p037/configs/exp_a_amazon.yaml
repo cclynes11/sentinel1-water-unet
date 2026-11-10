@@ -1,0 +1,20 @@
+# Experiment A: the pretrained weights on the model's own region, the Amazon. No training stage.
+#
+# Public route (10 Nov 2026): the authors' patches and labels are not released, so the model is scored per tile
+# against a public Landsat water map (JRC Global Surface Water, MapBiomas Water) on Sentinel-1 scenes of the
+# Rio Negro basin. What that score does and does not mean: src/p037/datasets/amazon_public.py.
+#
+#   1. put the scenes and labels in a folder with a scenes.yaml (template: exp_a_scenes.example.yaml)
+#   2. p037 data     --config analysis/p037/configs/exp_a_amazon.yaml --what scenes --source <that folder>
+#   3. p037 evaluate --config analysis/p037/configs/exp_a_amazon.yaml          # per-tile scores + MC dropout
+#   4. p037 proxies  --config analysis/p037/configs/exp_a_amazon.yaml          # the new tiles need proxy values
+#   5. p037 analyze  --config analysis/p037/configs/exp_a_amazon.yaml
+name: exp_a_amazon
+dataset: amazon_public
+init: pretrained
+input_channels: [VV, VH, VV, VH]   # the layout the weights were trained with
+target_classes: [1]
+flood_rule: direct                 # the model's native output: water
+mc_passes: 20
+reference_set: a_amazon            # the model's training region (600 sampled points, see analysis/proxy_distributions.md)
+score_class: water

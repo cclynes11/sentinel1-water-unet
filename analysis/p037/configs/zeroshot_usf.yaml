@@ -1,0 +1,13 @@
+# Zero-shot side result: the pretrained Wagner et al. (2024) water model on the UrbanSARFloods test scenes.
+# flood = water(post) AND NOT water(pre). No training stage.
+# The per-tile results of this run already exist (PR #4, analysis/usf_results.csv), so `p037 analyze`
+# can be run on them directly:
+#   p037 analyze --config analysis/p037/configs/zeroshot_usf.yaml --tiles analysis/usf_results.csv \
+#        --out analysis/p037/results/zeroshot_usf__ref_amazon
+name: zeroshot_usf
+dataset: urbansarfloods
+init: pretrained
+flood_rule: post_and_not_pre
+mc_passes: 20
+reference_set: a_amazon       # the model's own training distribution (approximated, see analysis/proxy_distributions.md)
+score_class: open

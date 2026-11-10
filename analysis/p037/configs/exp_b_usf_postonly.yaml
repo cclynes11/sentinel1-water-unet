@@ -1,0 +1,18 @@
+# Experiment B, comparison input: post-event image only, in Wagner's layout (VV, VH, VV, VH).
+# Everything else is identical to exp_b_usf.yaml. Question for the supervisor: pre+post vs post-only.
+name: exp_b_usf_postonly
+dataset: urbansarfloods
+init: random
+input_channels: [post_VV, post_VH, post_VV, post_VH]
+target_classes: [1, 2]
+flood_rule: direct
+epochs: 200
+batch_size: 32
+lr: 0.0001
+patience: 30
+checkpoint_metric: f1
+val_mode: official
+max_hours: 11.5
+mc_passes: 20
+reference_set: b_usf_train
+score_class: open

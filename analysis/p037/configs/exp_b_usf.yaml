@@ -1,0 +1,25 @@
+# Experiment B: Wagner's U-Net trained from scratch on UrbanSARFloods, tested on the 4 held-out scenes.
+# Same workflow as every other experiment; only the dataset and the initialisation are set here.
+name: exp_b_usf
+dataset: urbansarfloods
+
+init: random
+# Change-detection input: the labels mark change (permanent water is labelled 0), so the model
+# needs the pre-event image to tell a flood from a lake.
+input_channels: [pre_VV, pre_VH, post_VV, post_VH]
+target_classes: [1, 2]        # flood = open or urban; scored separately at test time
+flood_rule: direct
+
+# Wagner et al. 2024, section 2.6
+epochs: 200
+batch_size: 32
+lr: 0.0001
+flips: true
+patience: 30
+checkpoint_metric: f1         # deviation from the paper (accuracy): see p037/train.py
+val_mode: official            # official | events (then list val_events)
+max_hours: 11.5               # stop cleanly inside a 12 h Slurm job; resubmit to resume
+
+mc_passes: 20
+reference_set: b_usf_train    # proxy distribution of the patches this model is trained on
+score_class: open
